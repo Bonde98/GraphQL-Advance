@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'quiz',
     'graphene_django',
     'users',
+    'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
+    'graphql_auth',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -125,4 +128,48 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Définir le nouveau utilisateur utilisé 
 AUTH_USER_MODEL = "users.ExtendUSer"
+
+GRAPHQL_JWT = {
+    "JWT_ALLOW_ANY_CLASSES": [
+        # Création du compte
+        'graphql_auth.mutations.Register',
+        # Vérifcation d'un compte
+        'graphql_auth.mutations.VerifyAccount',
+        # Connecter un compte
+        'graphql_auth.mutations.ObtainJSONWebToken',
+         # Modification d'un compte utilisateur
+        'graphql_auth.mutations.UpdateAccount',
+         # Revoie un email pour confirmer l'utilisateur
+        'graphql_auth.mutations.ResendActivationEmail',
+        
+        "graphql_auth.mutations.SendPasswordResetEmail",
+        "graphql_auth.mutations.PasswordReset",
+        "graphql_auth.mutations.ObtainJSONWebToken",
+        "graphql_auth.mutations.VerifyToken",
+        "graphql_auth.mutations.RefreshToken",
+        "graphql_auth.mutations.RevokeToken",
+        "graphql_auth.mutations.VerifySecondaryEmail",
+    ],
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
+}
+
+# 
+GRAPHENE = {
+    'SCHEMA': 'users.schema.schema',
+    'MIDDLEAWARE': [ 
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+        ],
+}
+
+
+
+AUTHENTICATION_BACKENDS = [
+    # 'graphql_jwt.backends.JSONWebTokenBackend',
+    'graphql_auth.backends.GraphQLAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
